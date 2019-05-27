@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>简陋的聊天室</title>
+	<style>
+		.msgs{
+			height: 300px;
+			overflow: auto;
+		}
+	</style>
+</head>
+<body>
+	<h1>建立连接</h1>
+	<div class="msgs">
+		<ul>
+		
+		</ul>
+	</div>
+	<div class="box">
+		<input type="text" class="name" placeholder="用户名"><button>发送</button>
+		<textarea class="msg" placeholder="消息内容">
+			
+		</textarea>
+	</div>
+	<script>
+		var ws = new WebSocket('ws://172.30.83.98:8888');//换成本机IP
+		ws.addEventListener('open',function(){
+			console.log('连接成功')
+			ws.send('发消息给服务器')
+		})
+		ws.addEventListener('message',function(event){
+			console.log(event.data);//接收服务器的消息
+			//将接收的消息呈现到dom中
+			var str = event.data;
+			var obj = JSON.parse(str)
+			var li = document.createElement('li')
+			li.innerHTML = '<li>'+obj.name+':'+obj.msg+'</li>'
+			var ul = document.querySelector('ul')
+			ul.appendChild(li)
+			li.scrollIntoView();//滚动到可视区域
+		})
+
+		//点击发送消息
+		var btn = document.querySelector('button')
+		btn.addEventListener('click',function(){
+			var val = document.querySelector('.name').value
+			var textVal = document.querySelector('.msg').value
+			//将消息发给服务器
+			ws.send(JSON.stringify({name:val,msg:textVal}))
+		})
+	</script>
+</body>
+</html>
